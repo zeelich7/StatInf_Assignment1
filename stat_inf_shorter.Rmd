@@ -1,0 +1,69 @@
+---
+title: "Statistical Inference Course Project"
+author: "Joshua Chua"
+date: "Monday, August 17, 2015"
+output: html_document
+---
+##Overview
+In this project we investigate the exponential distribution in R and compare it with the Central Limit Theorem. We investigate the distribution of averages of 40 exponentials and illustrate via simulation and associated explanatory text the properties of the distribution of the mean of 40 exponentials.
+
+##Simulations
+The exponential distribution can be simulated in R with rexp(n, lambda) where lambda is the rate parameter. The mean of exponential distribution is 1/lambda and the standard deviation is also 1/lambda. We set lambda = 0.2 for all of the simulations.
+```{r, echo=FALSE,warning=FALSE}
+#load libraries
+library (ggplot2)
+#library (dplyr)
+#set variables
+lambda = 0.2 #Set lambda to 0.2
+n = 40 #No. of exponentials
+sims = 1000 #No. of simulations
+set.seed(168931475) #For reproducibility
+
+#generate simulations and calculate means
+simulations<-replicate(sims,rexp(n, lambda))
+simulation_means<-data.frame(means=apply(simulations, 2, mean))
+meanofMeans<-mean(simulation_means$means)
+```
+##Results:
+We plot the density function of our simulation means, and overlay it with a normal distribution we can see that the distribution of the simulation means  is approximately normal, as the Central Limit Theorem exerts.
+Also included are the mean of our simulations (red line) and our expected mean (orange line), and we can see they are pretty close.
+```{r, echo=FALSE}
+ggplot(simulation_means,aes(x=means)) +
+  geom_histogram(aes(y=..density..),fill="steelblue",binwidth = 0.2, color = I("black"))+
+  geom_vline(xintercept = 5, color="orange", size=1)+
+  geom_vline(xintercept = meanofMeans, color="red", size=1)+
+  labs(title="Distribution of simulation means",x="Mean",y="Density")+
+  stat_function(fun = dnorm, arg = list(mean = 5, sd = sd(simulation_means$mean)))
+```
+
+__Sample Mean versus Theoretical Mean__
+  
+_Question 1_: Show the sample mean and compare it to the theoretical mean of the distribution.
+  
+The expected (theoretical) mean of an exponential distribution is 1/lambda, in our simulation case this would be 1/0.2 = __5__
+From our results we can see that the sample mean of the 1000 simulations is 
+```{r, echo=FALSE}
+meanofMeans
+```
+  which is pretty close to our expected mean.
+
+__Sample Variance versus Theoretical Variance__
+  
+_Question 2_: Show how variable the sample is (via variance) and compare it to the theoretical variance of the distribution.
+  
+The theoretical variance of our simulation is (1/lambda)*(1/sqrt(n)))^2 = 0.625
+Sample variance is
+```{r, echo=FALSE}
+var(simulation_means$means)
+```
+We can see that the theoretical and sample variance are rather close. 
+  
+__Distribution__
+  
+_Question 3_: Show that the distribution is approximately normal.
+  
+When compared with the actual distribution of the 1000 random exponentials, we can see that the distribution of a large collection of random exponentials is still exponential but the distribution of a large collection of averages of 40 exponentials is approximately normal.
+  
+```{r, echo=FALSE}
+hist(simulations)
+```
